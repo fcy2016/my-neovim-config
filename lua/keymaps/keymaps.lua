@@ -30,5 +30,5 @@ keymap.set("n", "<C-H>", ":bprevious<CR>")
 
 -- --------- 插件--------- ---
 -- NerdTree
-keymap.set("n","<F2>",":NERDTreeToggle<CR>")
-keymap.set("i","<F2>","<ESC>:NERDTreeToggle<CR>")
+keymap.set("n","<F2>",":NvimTreeToggle<CR>")
+keymap.set("i","<F2>","<ESC>:NvimTreeToggle<CR>")

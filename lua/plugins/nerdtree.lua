@@ -1,6 +1,7 @@
 return {
-  "preservim/nerdtree",
-  config=function()
-    --require("nerdtree").setup()
-  end
+  --"preservim/nerdtree",
+  --dependencies = 'nvim-tree/nvim-web-devicons',
+  --config=function()
+    ----require("nerdtree").setup()
+  --end
 }
