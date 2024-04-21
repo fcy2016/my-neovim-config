@@ -4,7 +4,7 @@ local keymap = vim.keymap
 
 -- ---------- 插入模式 ---------- ---
 keymap.set("i", "kk", "<ESC>")
-keymap.set("i", "<C-s>","<ESC>:w<CR>a")
+keymap.set("i", "<C-s>", "<ESC>:w<CR>a")
 
 -- ---------- 视觉模式 ---------- ---
 -- 单行或多行移动
@@ -13,10 +13,10 @@ keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- ---------- 正常模式 ---------- ---
 -- 移动
-keymap.set("n","L","$")
-keymap.set("n","H","0")
+keymap.set("n", "L", "$")
+keymap.set("n", "H", "0")
 -- 窗口
-keymap.set("n", "<leader>sv", "<C-w>v") -- 水平新增窗口 
+keymap.set("n", "<leader>sv", "<C-w>v") -- 水平新增窗口
 keymap.set("n", "<leader>sh", "<C-w>s") -- 垂直新增窗口
 keymap.set("n", "<C-s>", ":w<CR>")
 
@@ -30,5 +30,12 @@ keymap.set("n", "<C-H>", ":bprevious<CR>")
 
 -- --------- 插件--------- ---
 -- NerdTree
-keymap.set("n","<F2>",":NvimTreeToggle<CR>")
-keymap.set("i","<F2>","<ESC>:NvimTreeToggle<CR>")
+keymap.set("n", "<F2>", ":NvimTreeToggle<CR>")
+keymap.set("i", "<F2>", "<ESC>:NvimTreeToggle<CR>")
+
+-- --------- telescope ------------
+-- local builtin = require('telescope.builtin')
+keymap.set('n', '<leader>ff', ":Telescope find_files<CR>")
+keymap.set('n', '<leader>fg', ":Telescope live_grep<CR>")
+keymap.set('n', '<leader>fb', ":Telescope buffers<CR>")
+keymap.set('n', '<leader>fh', ":Telescope help_tags<CR>")
