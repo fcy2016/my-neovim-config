@@ -1,6 +1,19 @@
 vim.g.mapleader = " "
 
+
 local keymap = vim.keymap
+
+-- --------- 关闭方向键 -------------
+keymap.set("n","<UP>","")
+keymap.set("n","<DOWN>","")
+keymap.set("n","<LEFT>","")
+keymap.set("n","<RIGHT>","")
+
+keymap.set("i","<UP>","")
+keymap.set("i","<DOWN>","")
+keymap.set("i","<LEFT>","")
+keymap.set("i","<RIGHT>","")
+
 
 -- ---------- 插入模式 ---------- ---
 keymap.set("i", "kk", "<ESC>")
