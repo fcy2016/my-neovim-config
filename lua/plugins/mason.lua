@@ -4,8 +4,12 @@ return {
   opts={
     ensure_installed={
       "gopls",
+      "pyright",
+      "lua-language-server"
     }
   },
   config=function()
   end
+  
+
 }

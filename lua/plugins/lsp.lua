@@ -24,7 +24,10 @@ return {
       ocamllsp = {},
       taplo = {},
       ruff_lsp = {},
-      gopls=require("plugins.lsp.gopls"),
+      --gopls=require("plugins.lsp.gopls"),
+      gopls={
+        cmd={"gopls"}
+      },
     }
     local on_attach = function(_, bufnr)
       -- Enable completion triggered by <c-x><c-o>
