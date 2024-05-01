@@ -2,7 +2,6 @@ vim.g.mapleader = " "
 
 
 local keymap = vim.keymap
-
 -- --------- 关闭方向键 -------------
 keymap.set("n","<UP>","")
 keymap.set("n","<DOWN>","")
@@ -14,7 +13,12 @@ keymap.set("i","<DOWN>","")
 keymap.set("i","<LEFT>","")
 keymap.set("i","<RIGHT>","")
 
-
+keymap.set("i","<A-h>","<LEFT>")
+keymap.set("i","<A-l>","<RIGHT>")
+keymap.set("i","<A-j>","<DOWN>")
+keymap.set("i","<A-k>","<UP>")
+keymap.set("i","<A-L>","<ESC>$a")
+keymap.set("i","<A-H>","<ESC>^i")
 -- ---------- 插入模式 ---------- ---
 keymap.set("i", "kk", "<ESC>")
 keymap.set("i", "<C-s>", "<ESC>:w<CR>a")
@@ -45,6 +49,7 @@ keymap.set("n", "<C-H>", ":bprevious<CR>")
 -- NerdTree
 keymap.set("n", "<F2>", ":NvimTreeToggle<CR>")
 keymap.set("i", "<F2>", "<ESC>:NvimTreeToggle<CR>")
+
 
 -- --------- telescope ------------
 -- local builtin = require('telescope.builtin')

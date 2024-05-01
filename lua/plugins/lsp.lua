@@ -4,7 +4,10 @@ return {
 
   dependencies = {
     "williamboman/mason.nvim",
-    "williamboman/mason-lspconfig.nvim"
+    "williamboman/mason-lspconfig.nvim",
+    "hrsh7th/cmp-nvim-lsp"
+
+
   },
   config = function()
     local servers = {
@@ -25,8 +28,8 @@ return {
       taplo = {},
       ruff_lsp = {},
       --gopls=require("plugins.lsp.gopls"),
-      gopls={
-        cmd={"gopls"}
+      gopls = {
+        cmd = { "gopls" }
       },
     }
     local on_attach = function(_, bufnr)
@@ -61,7 +64,7 @@ return {
     require("mason-lspconfig").setup({
       ensure_installed = vim.tbl_keys(servers),
       handlers = {
-        function(server_name)         -- default handler (optional)
+        function(server_name) -- default handler (optional)
           require("lspconfig")[server_name].setup {
             settings = servers[server_name],
             on_attach = on_attach,
@@ -72,4 +75,3 @@ return {
     --require("plugins.lsp.gopls")
   end
 }
-
