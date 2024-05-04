@@ -3,22 +3,22 @@ vim.g.mapleader = " "
 
 local keymap = vim.keymap
 -- --------- 关闭方向键 -------------
-keymap.set("n","<UP>","")
-keymap.set("n","<DOWN>","")
-keymap.set("n","<LEFT>","")
-keymap.set("n","<RIGHT>","")
+keymap.set("n", "<UP>", "")
+keymap.set("n", "<DOWN>", "")
+keymap.set("n", "<LEFT>", "")
+keymap.set("n", "<RIGHT>", "")
 
-keymap.set("i","<UP>","")
-keymap.set("i","<DOWN>","")
-keymap.set("i","<LEFT>","")
-keymap.set("i","<RIGHT>","")
+keymap.set("i", "<UP>", "")
+keymap.set("i", "<DOWN>", "")
+keymap.set("i", "<LEFT>", "")
+keymap.set("i", "<RIGHT>", "")
 
-keymap.set("i","<A-h>","<LEFT>")
-keymap.set("i","<A-l>","<RIGHT>")
-keymap.set("i","<A-j>","<DOWN>")
-keymap.set("i","<A-k>","<UP>")
-keymap.set("i","<A-L>","<ESC>$a")
-keymap.set("i","<A-H>","<ESC>^i")
+keymap.set("i", "<A-h>", "<LEFT>")
+keymap.set("i", "<A-l>", "<RIGHT>")
+keymap.set("i", "<A-j>", "<DOWN>")
+keymap.set("i", "<A-k>", "<UP>")
+keymap.set("i", "<A-L>", "<ESC>$a")
+keymap.set("i", "<A-H>", "<ESC>^i")
 -- ---------- 插入模式 ---------- ---
 keymap.set("i", "kk", "<ESC>")
 keymap.set("i", "<C-s>", "<ESC>:w<CR>a")
@@ -57,3 +57,7 @@ keymap.set('n', '<leader>ff', ":Telescope find_files<CR>")
 keymap.set('n', '<leader>fg', ":Telescope live_grep<CR>")
 keymap.set('n', '<leader>fb', ":Telescope buffers<CR>")
 keymap.set('n', '<leader>fh', ":Telescope help_tags<CR>")
+
+
+-- ----------format-----------------
+keymap.set("n", "<leader>fmt", ":lua vim.lsp.buf.format()<CR>")
