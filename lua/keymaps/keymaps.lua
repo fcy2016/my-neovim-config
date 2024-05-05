@@ -61,3 +61,11 @@ keymap.set('n', '<leader>fh', ":Telescope help_tags<CR>")
 
 -- ----------format-----------------
 keymap.set("n", "<leader>fmt", ":lua vim.lsp.buf.format()<CR>")
+
+-- ----------dap---------------
+keymap.set("n", "<leader>dp", ":lua require'dap'.toggle_breakpoint()<CR>")
+keymap.set("n", "<leader>dc", ":lua require'dap'.continue()<CR>")
+keymap.set("n", "<leader>do", ":lua require'dap'.step_over()<CR>")
+keymap.set("n", "<leader>di", ":lua require'dap'.step_into()<CR>")
+keymap.set("n", "<leader>dt", ":lua require'dap'.step_out()<CR>")
+keymap.set("n", "<leader>ds", ":lua require'dap'.disconnect()<CR>")
