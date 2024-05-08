@@ -1,50 +1,3 @@
--- -- require('dap-go').setup {
--- --     -- Additional dap configurations can be added.
--- --     -- dap_configurations accepts a list of tables where each entry
--- --     -- represents a dap configuration. For more details do:
--- --     -- :help dap-configuration
--- --     dap_configurations = {
--- --         {
--- --             -- Must be "go" or it will be ignored by the plugin
--- --             type = "go",
--- --             name = "Attach remote",
--- --             mode = "remote",
--- --             request = "attach",
--- --         },
--- --     },
--- --     -- delve configurations
--- --     delve = {
--- --         -- the path to the executable dlv which will be used for debugging.
--- --         -- by default, this is the "dlv" executable on your PATH.
--- --         path = "C:/Users/fcy23/go/bin/dlv.exe",
--- --         -- time to wait for delve to initialize the debug session.
--- --         -- default to 20 seconds
--- --         initialize_timeout_sec = 20,
--- --         -- a string that defines the port to start delve debugger.
--- --         -- default to string "${port}" which instructs nvim-dap
--- --         -- to start the process in a random available port
--- --         port = "${port}",
--- --         -- additional args to pass to dlv
--- --         args = {},
--- --         -- the build flags that are passed to delve.
--- --         -- defaults to empty string, but can be used to provide flags
--- --         -- such as "-tags=unit" to make sure the test suite is
--- --         -- compiled during debugging, for example.
--- --         -- passing build flags using args is ineffective, as those are
--- --         -- ignored by delve in dap mode.
--- --         build_flags = "",
--- --         -- whether the dlv process to be created detached or not. there is
--- --         -- an issue on Windows where this needs to be set to false
--- --         -- otherwise the dlv server creation will fail.
--- --         detached = true,
--- --         -- the current working directory to run dlv from, if other than
--- --         -- the current working directory.
--- --         cwd = nil,
--- --     },
--- -- }
-
-
-
 -- local dap = require('dap')
 
 -- dap.adapters.go = {
@@ -96,20 +49,189 @@
 --         program = "./${relativeFileDirname}"
 --     }
 -- }
+-- local dap = require("dap")
+-- dap.adapters.go = {
+--     type = 'executable',
+--     command = 'node',
+--     -- args = { os.getenv('HOME') .. '/dev/golang/vscode-go/dist/debugAdapter.js' },
+--     args = { "C:\\Users\\fcy23\\.vscode\\extensions\\golang.go-0.41.4\\dist\\debugAdapter.js" }
+-- }
+-- dap.configurations.go = {
+--     {
+--         type = 'go',
+--         name = 'Debug',
+--         request = 'launch',
+--         showLog = false,
+--         program = "${file}",
+--         dlvToolPath = vim.fn.exepath('dlv') -- Adjust to where delve is installed
+--     },
+-- }
+-- local M = {}
 local dap = require("dap")
+local path = require("utils.path")
+local notify_utils = require("utils.notify")
+local lsputil = require("lspconfig/util")
+
+--[[ local pickers = require "telescope.pickers"
+local finders = require "telescope.finders"
+local conf = require("telescope.config").values ]]
+
+local get_mod_name = function(root_dir)
+    local mod_abs = root_dir .. "/go.mod"
+    local file = io.open(mod_abs, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+
+        -- 使用正则表达式匹配mod后面的名称
+        local moduleName = string.match(content, "module%s+(%S+)")
+        if moduleName == "main" then
+            return nil
+        end
+        return moduleName
+    else
+        return nil
+    end
+end
+
+local get_buffer_list = function()
+    local results = {}
+    local root_dir = lsputil.root_pattern("go.work", "go.mod", ".git")(vim.fn.getcwd()) .. "/"
+    local buffers = vim.api.nvim_list_bufs()
+    for _, buffer in ipairs(buffers) do
+        if vim.api.nvim_buf_is_loaded(buffer) then
+            local filename = vim.api.nvim_buf_get_name(buffer)
+            if string.find(filename, "%w.go$") then
+                local relative_fname = (filename:sub(0, #root_dir) == root_dir) and filename:sub(#root_dir + 1)
+                    or filename
+                table.insert(results, relative_fname)
+            end
+        end
+    end
+    return results
+end
+
 dap.adapters.go = {
-    type = 'executable',
-    command = 'node',
-    -- args = { os.getenv('HOME') .. '/dev/golang/vscode-go/dist/debugAdapter.js' },
-    args = { "C:\\Users\\fcy23\\.vscode\\extensions\\golang.go-0.41.4\\dist\\debugAdapter.js" }
-}
-dap.configurations.go = {
-    {
-        type = 'go',
-        name = 'Debug',
-        request = 'launch',
-        showLog = false,
-        program = "${file}",
-        dlvToolPath = vim.fn.exepath('dlv') -- Adjust to where delve is installed
+    type = "server",
+    port = "${port}",
+    executable = {
+        command = "dlv",
+        args = { "debug", "-l", "127.0.0.1:${port}", "--log" },
     },
 }
+-- https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_dap.md
+--
+
+dap.configurations.go = {
+    {
+        type = "go",
+        name = "Debug",
+        request = "launch",
+        cwd = "${workspaceFolder}",
+        args = function()
+            return coroutine.create(function(dap_run_co)
+                vim.ui.input({
+                    prompt = "Program arguments: ",
+                    completion = "file",
+                    highlight = function()
+                        return { fg = "blue", bg = "white" }
+                    end,
+                }, function(input)
+                    coroutine.resume(dap_run_co, vim.fn.split(input, " ", true))
+                end)
+            end)
+        end,
+        program = function()
+            return coroutine.create(function(dap_run_co)
+                local items = get_buffer_list()
+                vim.ui.select(items, { prompt = "Path to executable: " }, function(choice)
+                    if choice == nil or choice == "" then
+                        return
+                    end
+                    local root_dir = lsputil.root_pattern("go.work", "go.mod", ".git")(vim.fn.getcwd()) .. "/"
+                    local execute_file = root_dir .. choice
+                    coroutine.resume(dap_run_co, execute_file)
+                end)
+            end)
+        end,
+    },
+
+    {
+        type = "go",
+        name = "Debug (go.mod)",
+        request = "launch",
+        cwd = "${workspaceFolder}",
+        args = function()
+            return coroutine.create(function(dap_run_co)
+                vim.ui.input({
+                    prompt = "Program arguments: ",
+                    completion = "file",
+                    highlight = function()
+                        return { fg = "blue", bg = "white" }
+                    end,
+                }, function(input)
+                    coroutine.resume(dap_run_co, vim.fn.split(input, " ", true))
+                end)
+            end)
+        end,
+        program = function()
+            return coroutine.create(function(dap_run_co)
+                local pkgs = path.read_file("go.debug")
+                if pkgs == nil or #pkgs == 0 then
+                    vim.ui.input({ prompt = "[Dap] Input Package Name" }, function(pkg_name)
+                        if pkg_name ~= nil and pkg_name ~= "" then
+                            local full_path = vim.fn.resolve(vim.fn.getcwd() .. "/" .. pkg_name)
+                            if path.exists(full_path) ~= true then
+                                notify_utils.notify("Package " .. pkg_name .. " is not existed", "error", "[Dap: Go]")
+                            end
+                            return
+                        else
+                            pkg_name = "."
+                        end
+                        coroutine.resume(dap_run_co, pkg_name)
+                    end)
+                else
+                    vim.ui.select(pkgs, { prompt = "[Dap] Select Package Name" }, function(choice)
+                        if choice ~= nil and choice ~= "" then
+                            choice = "./" .. choice
+                        else
+                            choice = "."
+                        end
+                        notify_utils.notify(choice, "info", "debug go mod")
+                        coroutine.resume(dap_run_co, choice)
+                    end)
+                end
+            end)
+        end,
+    },
+
+    {
+        type = "go",
+        name = "Debug test",
+        request = "launch",
+        mode = "test",
+        program = "${file}",
+        -- extra_command_args
+    },
+
+    {
+        type = "go",
+        name = "Debug test (go.mod)",
+        request = "launch",
+        mode = "test",
+        program = function()
+            -- got prject root abs dirname ; eg /home/l0calh0st/gopath/project1
+            local root_dir = vim.lsp.buf.list_workspace_folders()[1]
+            -- got subpath
+            local relative = string.gsub(vim.fn.expand("%:p:h"), root_dir, "")
+            -- got mod name from go.mod, eg :example.com
+            local mod_name = get_mod_name(root_dir)
+            if mod_name == nil then
+                return relative
+            end
+            return mod_name .. relative
+        end,
+    },
+}
+
+-- return M
